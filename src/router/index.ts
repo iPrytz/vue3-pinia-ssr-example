@@ -12,14 +12,9 @@ export default function () {
         component: () => import('@/views')
       },
       {
-        path: '/user',
-        name: 'user',
-        component: () => import('@/views/user.vue')
-      },
-      {
-        path: '/market',
-        name: 'market',
-        component: () => import('@/views/market')
+        path: '/fav-fruit',
+        name: 'favFruit',
+        component: () => import('@/views/favFruit.vue')
       }
     ]
   });

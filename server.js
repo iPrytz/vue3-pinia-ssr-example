@@ -45,26 +45,81 @@ export async function createServer(root = process.cwd(), isProd = isProduction) 
     );
   }
 
-  app.use('/justTest/getFruitList', async (req, res) => {
-    const names = ['Orange', 'Apricot', 'Apple', 'Plum', 'Pear', 'Pome', 'Banana', 'Cherry', 'Grapes', 'Peach'];
-    const list = names.map((name, id) => {
-      return {
-        id: ++id,
-        name,
-        price: Math.ceil(Math.random() * 100)
+  app.use('/mock/getuserinfo', async (req, res) => {
+    const sessionId = req.headers.sessionid || req.headers.sessionId;
+    let user = null;
+    if (sessionId){
+      user = {
+        name: 'Johnny ' + sessionId,
+        userId: 'ID-' + sessionId,
+        token: 'token-' + sessionId
       };
-    });
+    }
     const data = {
-      data: list,
+      data: user,
       code: 0,
       msg: ''
     };
-    res.end(JSON.stringify(data));
+    setTimeout(() => {
+      res.end(JSON.stringify(data));
+    }, randomDelay());
+  });
+
+  app.use('/mock/getfavoritefruitlist', async (req, res) => {
+    const names = ['Orange', 'Apricot', 'Apple', 'Plum', 'Pear', 'Pome', 'Banana', 'Cherry', 'Grapes', 'Peach'];
+    const favFruit = {
+      user: '',
+      fruitList: []
+    };
+    const token = req.headers.token;
+
+    if (token) {
+      const random = names.sort(() => 0.5 - Math.random());
+      favFruit.user = `Johnny (${token})`;
+      favFruit.fruitList = random.slice(0, 5);
+    }
+    const data = {
+      data: favFruit,
+      code: 0,
+      msg: ''
+    };
+    setTimeout(() => {
+      res.end(JSON.stringify(data));
+    }, randomDelay());
+
+  });
+
+  app.use('/mock/getfavoritecolor', async (req, res) => {
+    const names = ['Orange', 'Green', 'White', 'Brown', 'Pink', 'Blue', 'Red'];
+    const favColor = {
+      user: '',
+      color: ''
+    };
+    const token = req.headers.token;
+
+    if (token) {
+      const random = names.sort(() => 0.5 - Math.random());
+      favColor.user = `Johnny (${token})`;
+      favColor.color = random[0];
+    }
+
+    const data = {
+      data: favColor,
+      code: 0,
+      msg: ''
+    };
+    setTimeout(() => {
+      res.end(JSON.stringify(data));
+    }, randomDelay());
   });
 
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl;
+      let sessionId = 'anonymous';
+      if(req?.headers?.cookie) {
+        sessionId = req.headers.cookie.split('; ')?.find(row => row.startsWith('sessionId='));
+      }
 
       let template, render;
       if (!isProd) {
@@ -77,7 +132,7 @@ export async function createServer(root = process.cwd(), isProd = isProduction) 
         render = (await import('./dist/server/entry-server.js')).render;
       }
 
-      const [appHtml, state, links, teleports] = await render(url, manifest);
+      const [appHtml, state, links, teleports] = await render(url, sessionId, manifest);
 
       const html = template
         .replace(`<!--preload-links-->`, links)
@@ -98,8 +153,12 @@ export async function createServer(root = process.cwd(), isProd = isProduction) 
 
 if (!isTest) {
   createServer().then(({ app }) =>
-    app.listen(80, () => {
-      console.log('http://localhost:80');
+    app.listen(8085, () => {
+      console.log('http://localhost:8085');
     })
   );
+}
+
+function randomDelay(base = 50, extra = 200) {
+  return Math.floor(Math.random() * extra + base);
 }

@@ -28,6 +28,7 @@
     "@unocss/preset-mini": "^0.50.1",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vitejs/plugin-vue-jsx": "^3.0.0",
+    "autocannon": "^7.10.0",
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
     "eslint": "^8.35.0",

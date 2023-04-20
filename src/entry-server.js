@@ -2,6 +2,7 @@ import 'uno.css';
 import { renderToString } from 'vue/server-renderer';
 import { createApp } from './main';
 import { ID_INJECTION_KEY } from 'element-plus';
+import { useUser } from './store/user';
 
 function renderPreloadLinks(modules, manifest) {
   let links = '';
@@ -39,7 +40,7 @@ function renderTeleports(teleports) {
     return all;
   }, teleports.body || '');
 }
-export async function render(url, manifest) {
+export async function render(url, sessionId, manifest) {
   const { app, router, store } = createApp();
   app.provide(ID_INJECTION_KEY, {
     prefix: 1024,
@@ -48,6 +49,7 @@ export async function render(url, manifest) {
   try {
     await router.push(url);
     await router.isReady();
+    useUser(store).updateSessionId(sessionId);
     const ctx = {};
     const html = await renderToString(app, ctx);
     const preloadLinks = renderPreloadLinks(ctx.modules, manifest);
