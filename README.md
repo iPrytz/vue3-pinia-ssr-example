@@ -11,17 +11,15 @@
 npm i
 npm run dev
 ```
-
-- preview
+- run the test
 ```bash 
-npm i
-npm run preview
+node .\concurrency-test.js
 ```
 
-
-- build
+- look in the server logs
 ```bash 
-npm i
-npm run build
+1682006594830-vwxo5 5 sessionId: 7
 ```
+{requestLogId} {order} {sessionId or token}
 
+- the requestLogId should always have the same number in the sessionId and token
